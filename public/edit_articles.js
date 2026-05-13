@@ -1,47 +1,60 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <title>記事の編集</title>
-</head>
-<body>
-  <main>
-    <p>
-      <a href="index.html">戻る</a>
-    </p>
-    <section class="edit">
-      <div class="container">
-        <h3>
-          このページから記事を編集・作成できます
-        </h3>
-      </div>
-      <section class="sec_edit_articles">
-        <div class="index">
-          <h3>記事の編集</h3>
-        </div>
-        <div class="articles_list">
-          <p>公開されている記事一覧</p>
-          <iframe src="articles_list.html" width="80%" height="auto" title="コンテンツ">
-            エラーです！
-            <a herf="articles_list.html">このリンクから飛んでください</a>
-          </iframe>
-        </div>
-      </section>
-      <section class="sec_create_article">
-        <div class="index">
-          <h3>記事の作成</h3>
-        </div>
-        <!-- <a href=""><button id="create_article">記事を追加</button></a> -->
-        <textarea id="new_title" placeholder="タイトル"></textarea>
-        <button id="create_article">記事を追加</button>
-      </section>
-      
-    </section>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  onSnapshot,
+  setDoc,
+  deleteDoc,
+  doc,
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-  </main>
+// Firebase設定
+const firebaseConfig = {
+  apiKey: "AIzaSyD2-qs_MfQk1540EgVtl6F3bH0tEmRIU88",
+  authDomain: "homepage-test-cc15b.firebaseapp.com",
+  projectId: "homepage-test-cc15b",
+  storageBucket: "homepage-test-cc15b.firebasestorage.app",
+  messagingSenderId: "306865836134",
+  appId: "1:306865836134:web:8e6262f6f9fab6477a9da7",
+  measurementId: "G-Z4B1QECB3Y"
+};
 
-  <script src="edit_articles.js" type="module"></script>
-</body>
-</html>
+// 初期化
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+const coll = collection(db, "articles");
+const auth = getAuth();
+
+const  createArticle = document.getElementById("create_article");
+
+
+createArticle.addEventListener("click", async () => {
+  const newTitle = String(document.getElementById("new_title").value);
+  if(newTitle === ""){
+    alert("タイトルを入力してください");
+  }else {
+    // const snapShot = await getCountFromServer(coll);
+    // const count = snapShot.data().count;
+    // alert(count)
+    const ref = await addDoc(coll, {
+      // pageNumber: count - 2,
+      published: 0,
+      createdAt: new Date(),
+      title: newTitle,
+      content: [
+        {
+          index: 0,
+          subheading: "小見出し",
+          sentence: "記事"
+        }
+      ]
+    });
+      document.getElementById("new_title").value = "";
+      // location.href = `article.html?page=${ref.id}`;
+      window.open(`article.html?page=${ref.id}`, "_blank");
+  } 
+});
